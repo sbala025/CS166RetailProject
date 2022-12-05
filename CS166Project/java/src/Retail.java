@@ -791,33 +791,33 @@ public class Retail {
 
                System.out.print("\n\tEnter warehouseID:");
                String warehouse_id = in.readLine();
-               String warehouse_query =  String.format("SELECT * FROM Warehouse Where warehouseID = '%s'", warehouse_id);
-                  int valid_warehouseid = esql.executeQuery(query);
-               if(valid_warehouseid > 0){ 
-                     System.out.print("\n\tYou have successfully ordered item. Thank you. ");
-                     String w_query = String.format("UPDATE Product SET numberOfUnits=numberOfUnits+'%s' WHERE storeID='%s' AND productName='%s'", num_of_units, store_id, prod_name);	
-                     esql.executeUpdate(w_query);
+               String warehouse_query =  String.format("SELECT warehouseID  FROM Warehouse Where warehouseID = '%s'", warehouse_id);
+                  int valid_warehouseid = esql.executeQuery(warehouse_query);
+               	  //System.out.print("\n Warehouse " + valid_warehouseid + " is valid.");
+	       		if(valid_warehouseid > 0){ 
+                     		System.out.print("\n\tYou have successfully ordered item. Thank you. ");
+                     		String w_query = String.format("UPDATE Product SET numberOfUnits=numberOfUnits+'%s' WHERE storeID='%s' AND productName='%s'", num_of_units, store_id, prod_name);	
+                     		esql.executeUpdate(w_query);
                         
-                     query = String.format("INSERT INTO ProductSupplyRequests(managerID,warehouseID,storeID,productName, unitsRequested) VALUES('%s', '%s', '%s', '%s', '%s')",loggeduserID, warehouse_id, store_id, prod_name,num_of_units);
-                     esql.executeUpdate(query);
+                     		query = String.format("INSERT INTO ProductSupplyRequests(managerID,warehouseID,storeID,productName, unitsRequested) VALUES('%s', '%s', '%s', '%s', '%s')",loggeduserID, warehouse_id, store_id, prod_name,num_of_units);
+                     		esql.executeUpdate(query);
                  	
-		     //String productAfter = String.format("SELECT p.productName, p.numberOfUnits FROM Product P WHERE storeID='%s' AND productName='%s'", store_id, prod_name);
-                     List<List<String>> productAfterResult = esql.executeQueryAndReturnResult(productStatus);
-                     System.out.print("\n\tProduct " + productAfterResult.get(0).get(0) + " currently has " + productAfterResult.get(0).get(1) + " units after order.\n"); 
-               } else {
-                  System.out.print("This warehouse does not exist. \n");
-               }
-	       } else {
+		     		//String productAfter = String.format("SELECT p.productName, p.numberOfUnits FROM Product P WHERE storeID='%s' AND productName='%s'", store_id, prod_name);
+                     		List<List<String>> productAfterResult = esql.executeQueryAndReturnResult(productStatus);
+                     		System.out.print("\n\tProduct " + productAfterResult.get(0).get(0) + " currently has " + productAfterResult.get(0).get(1) + " units after order.\n"); 
+               		} else {
+                  	System.out.print("This warehouse does not exist. \n");
+	       		} 
+		} else {
 		  System.out.print("This product does not exist. \n");
-	       }
-            } else {
+	        }
+             } else {
                System.out.print("This function is reserved for the manager of this store only. \n");
-            }
-         } else {
+               }  
+	} else {
             System.out.print("This function is reserved for managers only. \n");
          }
-
-      } catch(Exception e) {
+	} catch(Exception e) {
          System.err.println (e.getMessage());
       }  
    }          
@@ -850,11 +850,18 @@ public class Retail {
                                         case 1:
                                                 System.out.println("Enter New Number of Units: ");
                                                 int newUnits = readChoice();
-                                                String updateQuery = String.format("UPDATE Product SET numberOfUnits='%s' WHERE storeID='%s' AND productName='%s'", newUnits, store_id, prod);
-                                                esql.executeUpdate(updateQuery);
-                                                String updateQuery2 = String.format("INSERT INTO ProductUpdates(managerID,storeID,productName,updatedOn) VALUES('%s', '%s', '%s', CURRENT_TIMESTAMP)",loggeduserID, store_id, prod);
-                                                esql.executeUpdate(updateQuery2);
-                                                break;
+                                                System.out.println("Enter warehouse ID to place order from:");
+						int inputWID = readChoice();
+						String warehouse_query =  String.format("SELECT warehouseID  FROM Warehouse Where warehouseID = '%s'",  inputWID);
+                  				int valid_warehouseid = esql.executeQuery(warehouse_query);
+						if ( valid_warehouseid > 0){
+							String updateQuery = String.format("UPDATE Product SET numberOfUnits='%s' WHERE storeID='%s' AND productName='%s'", newUnits, store_id, prod);
+                                                	esql.executeUpdate(updateQuery);
+                                                	String updateQuery2 = String.format("INSERT INTO ProductUpdates(managerID,storeID,productName,updatedOn) VALUES('%s', '%s', '%s', CURRENT_TIMESTAMP)",loggeduserID, store_id, prod);
+                                                	esql.executeUpdate(updateQuery2);
+                                                } else {
+							System.out.print("This warehouse does not exist. \n");	
+						} break;
                                         case 2:
                                                 System.out.println("Enter New Price Per Unit: ");
                                                 int newPrice = readChoice();
